@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>관리자 페이지 — 김지훈 ♥ 이수아</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&family=Cormorant+Garamond:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Serif KR',serif;background:#F5F0EB;color:#3D3530;min-height:100vh}
+button{cursor:pointer;font-family:inherit;border:none;background:none}
+input{font-family:inherit}
+:root{--cream:#FDFAF6;--gold:#C9A98A;--gold-light:#FFF5EE;--border:#E8DDD5;--dark:#3D3530;--mid:#8C7B70}
+.hidden{display:none!important}
+#loginWrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-box{background:white;border:1px solid var(--border);border-radius:24px;padding:40px 32px;width:100%;max-width:340px;text-align:center}
+.login-title{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--dark);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--mid);margin-bottom:32px}
+.login-input{width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--border);font-size:14px;text-align:center;letter-spacing:.3em;outline:none;margin-bottom:8px;transition:border-color .2s}
+.login-input:focus{border-color:var(--gold)}
+.login-err{font-size:12px;color:#D4756A;margin-bottom:12px;display:none}
+.login-err.show{display:block}
+.login-btn{width:100%;padding:14px;border-radius:999px;background:var(--gold);color:white;font-size:14px;transition:opacity .2s}
+.login-btn:active{opacity:.8}
+.back-link{margin-top:20px;font-size:12px;color:var(--gold);display:block;cursor:pointer}
+#adminWrap{display:none;max-width:480px;margin:0 auto;padding-bottom:60px}
+.admin-hd{background:rgba(253,250,246,.95);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;backdrop-filter:blur(8px)}
+.admin-hd-title{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--dark)}
+.logout-btn{font-size:12px;padding:6px 14px;border-radius:999px;border:1px solid var(--border);color:var(--mid)}
+.tab-bar{display:flex;background:white;border-bottom:1px solid var(--border)}
+.tab-btn{flex:1;padding:14px 8px;font-size:12px;color:var(--mid);border-bottom:2px solid transparent;transition:all .2s}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-pane{display:none;padding:20px 16px}
+.tab-pane.active{display:block}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:white;border:1px solid var(--border);border-radius:16px;padding:16px 12px;text-align:center}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--dark);margin-bottom:4px}
+.stat-lbl{font-size:11px;color:var(--mid)}
+.item-card{background:white;border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:10px}
+.item-hd{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.item-name{font-size:14px;font-weight:500;color:var(--dark)}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px}
+.b-groom{background:#EEF2FF;color:#6366F1}
+.b-bride{background:#FDF2F8;color:#EC4899}
+.b-att{background:#ECFDF5;color:#059669}
+.b-abs{background:#FEF2F2;color:#DC2626}
+.item-date{font-size:11px;color:var(--gold);margin-left:auto}
+.item-del{color:#ccc;font-size:14px;padding:0 2px;transition:color .2s}
+.item-del:hover{color:#D4756A}
+.item-msg{font-size:13px;color:var(--mid);font-weight:300;line-height:1.8;word-break:break-word}
+.item-detail{font-size:12px;color:var(--mid);margin-top:4px}
+.empty-msg{text-align:center;padding:40px 0;font-size:13px;color:var(--gold)}
+.vis-card{background:white;border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center;margin-bottom:12px}
+.vis-num{font-family:'Cormorant Garamond',serif;font-size:56px;color:var(--dark);margin-bottom:8px}
+.vis-lbl{font-size:13px;color:var(--mid)}
+.dday-card{background:var(--gold-light);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
+.dday-num{font-family:'Cormorant Garamond',serif;font-size:36px;color:var(--gold);margin-bottom:4px}
+.dday-lbl{font-size:12px;color:var(--mid)}
+</style>
+</head>
+<body>
+
+<div id="loginWrap">
+  <div class="login-box">
+    <p class="login-title">Admin</p>
+    <p class="login-sub">관리자 비밀번호를 입력해주세요</p>
+    <input class="login-input" id="pwInput" type="password" placeholder="비밀번호" maxlength="20" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <p class="login-err" id="loginErr">비밀번호가 올바르지 않습니다</p>
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <a href="index.html" class="back-link">← 청첩장으로 돌아가기</a>
+  </div>
+</div>
+
+<div id="adminWrap">
+  <div class="admin-hd">
+    <p class="admin-hd-title">관리자 페이지</p>
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('visitor',this)">방문자</button>
+    <button class="tab-btn" onclick="switchTab('rsvp',this)">참석여부</button>
+    <button class="tab-btn" onclick="switchTab('guestbook',this)">방명록</button>
+  </div>
+  <div class="tab-pane active" id="pane-visitor">
+    <div class="vis-card">
+      <p class="vis-num" id="visCount">0</p>
+      <p class="vis-lbl">총 방문자 수</p>
+    </div>
+    <div class="dday-card">
+      <p class="dday-num" id="ddayNum">D-?</p>
+      <p class="dday-lbl">2026년 9월 12일 웨딩데이까지</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><p class="stat-num" id="gbCount">0</p><p class="stat-lbl">방명록</p></div>
+      <div class="stat-card"><p class="stat-num" id="rsvpCount">0</p><p class="stat-lbl">참석여부</p></div>
+      <div class="stat-card"><p class="stat-num" id="attCount2">0</p><p class="stat-lbl">참석 인원</p></div>
+    </div>
+  </div>
+  <div class="tab-pane" id="pane-rsvp">
+    <div class="stat-grid" id="rsvpStats"></div>
+    <div id="rsvpItems"></div>
+  </div>
+  <div class="tab-pane" id="pane-guestbook">
+    <div id="gbItems"></div>
+  </div>
+</div>
+
+<script>
+var ADMIN_PW='1111';
+var SK_MSG='wedding_guestbook',SK_RSVP='wedding_rsvp',SK_VIS='wedding_visitors';
+var initMsgs=[
+  {id:1,name:'김지은',side:'신부측',message:'두 분의 결혼을 진심으로 축하드립니다! 언제나 행복 가득한 가정 이루시길 바라며, 멋진 미래를 함께 걸어가세요. 너무 예쁜 커플이에요 💐',date:'26-06-01',password:''},
+  {id:2,name:'장영수',side:'신랑측',message:'두 사람의 결혼을 정말 축하해요! 이제 둘만의 길을 함께 걸어갈 거라 생각하니 너무 기쁘네요. 늘 웃음 가득한 가정 되세요! 🎉',date:'26-06-01',password:''},
+  {id:3,name:'박소연',side:'신부측',message:'지훈이, 수아 결혼 진심으로 축하해요! 항상 서로 아껴주고 사랑하며 행복하게 지내길 바래요. 그대들의 앞날에 많은 축복이 함께하길! 🌹',date:'26-06-01',password:''}
+];
+function gd(k,fb){try{return JSON.parse(localStorage.getItem(k))||fb}catch{return fb}}
+function sd(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function getMsgs(){return gd(SK_MSG,initMsgs)}
+
+function doLogin(){
+  var pw=document.getElementById('pwInput').value;
+  if(pw===ADMIN_PW){
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('adminWrap').style.display='block';
+    loadAll();
+  }else{
+    document.getElementById('loginErr').classList.add('show');
+    document.getElementById('pwInput').value='';
+  }
+}
+function doLogout(){
+  document.getElementById('adminWrap').style.display='none';
+  document.getElementById('loginWrap').style.display='flex';
+  document.getElementById('pwInput').value='';
+  document.getElementById('loginErr').classList.remove('show');
+}
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active')});
+  document.querySelectorAll('.tab-pane').forEach(function(p){p.classList.remove('active')});
+  btn.classList.add('active');
+  document.getElementById('pane-'+id).classList.add('active');
+}
+function loadAll(){
+  var vis=parseInt(localStorage.getItem(SK_VIS)||'0',10);
+  var msgs=getMsgs();
+  var rsvp=gd(SK_RSVP,[]);
+  var att=rsvp.filter(function(r){return r.attending==='참석'});
+  var total=att.reduce(function(s,r){return s+1+(parseInt(r.guests)||0)},0);
+  var ddays=Math.max(0,Math.ceil((new Date('2026-09-12')-Date.now())/86400000));
+  document.getElementById('visCount').textContent=vis;
+  document.getElementById('ddayNum').textContent='D-'+ddays;
+  document.getElementById('gbCount').textContent=msgs.length;
+  document.getElementById('rsvpCount').textContent=rsvp.length;
+  document.getElementById('attCount2').textContent=total;
+  // rsvp stats
+  var abs=rsvp.filter(function(r){return r.attending==='불참석'});
+  document.getElementById('rsvpStats').innerHTML=
+    '<div class="stat-card"><p class="stat-num" style="color:#059669">'+att.length+'</p><p class="stat-lbl">참석</p></div>'+
+    '<div class="stat-card"><p class="stat-num" style="color:#DC2626">'+abs.length+'</p><p class="stat-lbl">불참석</p></div>'+
+    '<div class="stat-card"><p class="stat-num">'+total+'</p><p class="stat-lbl">총 예상 인원</p></div>';
+  // rsvp items
+  if(!rsvp.length){document.getElementById('rsvpItems').innerHTML='<div class="empty-msg">참석 여부 응답이 없습니다</div>'}
+  else{document.getElementById('rsvpItems').innerHTML=rsvp.map(function(r){
+    var bc=r.side==='신랑측'?'b-groom':'b-bride';
+    var ac=r.attending==='참석'?'b-att':'b-abs';
+    return '<div class="item-card"><div class="item-hd"><span class="item-name">'+esc(r.name)+'</span><span class="badge '+ac+'">'+esc(r.attending)+'</span>'+(r.side?'<span class="badge '+bc+'">'+esc(r.side)+'</span>':'')+'<span class="item-date">'+esc(r.date||'')+'</span><button class="item-del" onclick="delRsvp('+r.id+')">✕</button></div>'+(r.guests&&r.guests!=='0'?'<p class="item-detail">추가 인원: +'+esc(r.guests)+'명</p>':'')+(r.message?'<p class="item-msg">'+esc(r.message)+'</p>':'')+'</div>'
+  }).join('')}
+  // guestbook items
+  if(!msgs.length){document.getElementById('gbItems').innerHTML='<div class="empty-msg">방명록이 없습니다</div>'}
+  else{document.getElementById('gbItems').innerHTML=msgs.map(function(m){
+    var bc=m.side==='신랑측'?'b-groom':'b-bride';
+    return '<div class="item-card"><div class="item-hd"><span class="item-name">'+esc(m.name)+'</span>'+(m.side?'<span class="badge '+bc+'">'+esc(m.side)+'</span>':'')+'<span class="item-date">'+esc(m.date||'')+'</span><button class="item-del" onclick="delGb('+m.id+')">✕</button></div><p class="item-msg">'+esc(m.message)+'</p></div>'
+  }).join('')}
+}
+function delRsvp(id){
+  if(!confirm('삭제하시겠습니까?'))return;
+  sd(SK_RSVP,gd(SK_RSVP,[]).filter(function(r){return r.id!==id}));
+  loadAll();
+}
+function delGb(id){
+  if(!confirm('삭제하시겠습니까?'))return;
+  sd(SK_MSG,getMsgs().filter(function(m){return m.id!==id}));
+  loadAll();
+}
+</script>
+</body>
+</html>
